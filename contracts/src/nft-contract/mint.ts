@@ -10,18 +10,23 @@ export function internalMint({
   metadata,
   receiverId,
   perpetualRoyalties,
+  perpetualDependencies,
 }: {
   contract: Contract
   tokenId: string
   metadata: TokenMetadata
   receiverId: string
   perpetualRoyalties: { [key: string]: number }
+  perpetualDependencies: [string, number][]
 }): void {
   //measure the initial storage being used on the contract TODO
   let initialStorageUsage = near.storageUsage()
 
   // create a royalty map to store in the token
   let royalty: { [accountId: string]: number } = {}
+
+  // create a dependency array to store in the token
+  let dependency: [string, number][] = []
 
   // if perpetual royalties were passed into the function: TODO: add isUndefined fn
   if (perpetualRoyalties != null) {
@@ -37,6 +42,13 @@ export function internalMint({
     })
   }
 
+  if (perpetualDependencies != null) {
+    //iterate through the perpetual dependencies and insert the account and amount in the dependency array
+    perpetualDependencies.forEach((item, index) => {
+      dependency.push(item)
+    })
+  }
+
   //specify the token struct that contains the owner ID
   let token = new Token({
     //set the owner ID equal to the receiver ID passed into the function
@@ -47,6 +59,8 @@ export function internalMint({
     nextApprovalId: 0,
     //the map of perpetual royalties for the token (The owner will get 100% - total perpetual royalties)
     royalty,
+    //the array of perpetual dependencies for the token
+    dependency,
   })
 
   //insert the token ID and token struct and make sure that the token doesn't exist

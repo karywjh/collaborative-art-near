@@ -198,6 +198,7 @@ export function internalTransfer(
     nextApprovalId: token.next_approval_id,
     //we copy over the royalties from the previous token
     royalty: token.royalty,
+    dependency: token.dependency,
   })
 
   //insert that new token into the tokens_by_id, replacing the old entry
