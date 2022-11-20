@@ -1,7 +1,9 @@
 import ReactDOM from 'react-dom/client'
-import { RouterProvider } from 'react-router-dom'
-import router from './router'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import Launch from './pages/Launch'
 
 ReactDOM.createRoot(document.getElementById('app') as HTMLElement).render(
-  <RouterProvider router={router} />,
+  <RouterProvider
+    router={createBrowserRouter([{ path: '/', element: <Launch /> }])}
+  />,
 )

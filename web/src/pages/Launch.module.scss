@@ -1,0 +1,95 @@
+.title {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ed6104;
+
+  .heading {
+    font-size: 12rem;
+    font-weight: 600;
+    margin: 50px;
+  }
+
+  .subheading {
+    font-size: 5rem;
+    font-weight: 400;
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #f7f7f7;
+}
+
+.creations {
+  width: 55%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .glasses,
+  .pants,
+  .body,
+  .shoes {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+}
+
+.nft {
+  width: 45%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .person {
+    width: 400px;
+  }
+}
+
+.heading {
+  font-size: 5rem;
+  font-weight: 550;
+  margin: 30px;
+  color: #74ace8;
+}
+
+.subheading {
+  font-size: 2rem;
+  font-weight: 500;
+  color: #e8a474;
+}
+
+.btn {
+  cursor: pointer;
+  margin-bottom: 50px;
+  width: 200px;
+  height: 50px;
+  border-radius: 15px;
+  background-color: #74ace8;
+  text-align: center;
+  color: #ffffff;
+  font-weight: 550;
+  font-size: 1.3rem;
+  line-height: 50px;
+  transition: transform 200ms;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(1);
+  }
+}
