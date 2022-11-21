@@ -20,22 +20,22 @@ import person2 from '../../assets/person2.png'
 import person3 from '../../assets/person3.png'
 import Block from '../components/Block/Block'
 
-export default () => {
+const Launch = () => {
   const navigate = useNavigate()
 
   const fakeAddrs = [
-    '29d...eda',
-    '971...e12',
-    '7e2...9ea',
-    'd9e...3b2',
-    '174...437',
-    '084...c32',
-    'f3b...93b',
-    'a34...fa0',
-    '4df...cd9',
-    'd92...730',
-    '61a...99a',
-    '74e...a9b',
+    'rqf.near',
+    'z3d.near',
+    'k48.near',
+    'vi6.near',
+    '0nn.near',
+    'm7t.near',
+    'opf.near',
+    'rmc.near',
+    'mkt.near',
+    'q3z.near',
+    '2xc.near',
+    '14y.near',
   ]
 
   const persons = [person0, person1, person2, person3]
@@ -81,3 +81,5 @@ export default () => {
     </div>
   )
 }
+
+export default Launch
