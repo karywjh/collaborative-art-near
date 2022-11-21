@@ -82,6 +82,7 @@ const Make = () => {
   const outputRef = useRef<HTMLDivElement>(null)
   const dragItemRef = useRef<HTMLImageElement>()
 
+  const [yourRoyalty, setYourRoyalty] = useState('')
   const [minting, setMinting] = useState(false)
   const [perpetualRoyalties, setPerpetualRoyalties] = useState<
     Record<string, number>
@@ -311,13 +312,42 @@ const Make = () => {
             )}
           </Box>
           <Box mt={20}>
+            <h3>Dependencies</h3>
             {perpetualDeps.map(dep => (
               <div key={dep[1]}>
                 {dep[0]}: {dep[1]}
               </div>
             ))}
           </Box>
-          <Box mt={20}>{JSON.stringify(perpetualRoyalties, null, 2)}</Box>
+          <Box mt={20}>
+            <h3>Royalties</h3>
+            {Object.entries<number>(perpetualRoyalties).map(([id, val]) => (
+              <div key={id}>
+                {id}: {val / 100}%
+              </div>
+            ))}
+          </Box>
+          <Box mt={20} className={styles.addRoyalty}>
+            <h3>Add Royalty</h3>
+            <Flex>
+              <input
+                placeholder="Your Royalty (in percentage)"
+                onChange={event => setYourRoyalty(event.target.value)}
+              />
+              <button
+                onClick={() => {
+                  setPerpetualRoyalties(royalty => {
+                    return {
+                      ...royalty,
+                      [accountId!]: Math.floor(Number(yourRoyalty) * 100),
+                    }
+                  })
+                }}
+              >
+                Add
+              </button>
+            </Flex>
+          </Box>
           <Flex mt={20}>
             <div
               className={classNames(styles.mint, minting && styles.minting)}
