@@ -331,7 +331,7 @@ const Make = () => {
             <h3>Add Royalty</h3>
             <Flex>
               <input
-                placeholder="Your Royalty (in percentage)"
+                placeholder="Your Royalty (%)"
                 onChange={event => setYourRoyalty(event.target.value)}
               />
               <button
