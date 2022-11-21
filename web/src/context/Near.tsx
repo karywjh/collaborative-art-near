@@ -22,7 +22,7 @@ export interface LoginContext {
   modal?: WalletSelectorModal
   accountId?: string
   signIn: () => void
-  signOut: () => void
+  signOut: () => Promise<void>
 }
 
 const context = React.createContext({} as LoginContext)
@@ -109,7 +109,7 @@ export const NearProvider = ({ children }: PropsWithChildren) => {
       return
     }
     const wallet = await selector.wallet()
-
+    console.log('signOut wallet: ', wallet)
     wallet.signOut().catch(err => {
       console.log('Failed to sign out: ', err)
     })

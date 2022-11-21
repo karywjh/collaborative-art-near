@@ -71,7 +71,7 @@ const Launch = () => {
       </div>
 
       <div className={styles.nft}>
-        <div className={styles.heading}>NFT Blocks</div>
+        <div className={styles.heading}>Art Co.</div>
         <div className={styles.subheading}>Create, Collaborate, Own</div>
         <img src={persons[idx]} className={styles.person}></img>
         <div className={styles.btn} onClick={() => navigate('/make')}>
