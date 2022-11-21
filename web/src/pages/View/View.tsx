@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import { connect, keyStores } from 'near-api-js'
 import { KeyPairEd25519 } from 'near-api-js/lib/utils'
 import { useEffect, useState } from 'react'
@@ -10,6 +11,7 @@ export default () => {
   const { contractId, tokenId } = useParams()
 
   const [data, setData] = useState<any>()
+  const [listModal, setListModal] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -45,6 +47,22 @@ export default () => {
 
   return (
     <div className={styles.page}>
+      {listModal && (
+        <div className={styles.listModal}>
+          <div className={styles.dialog}>
+            <h3>List on Market</h3>
+            <input placeholder="Price" />
+            <Flex spacing={15}>
+              <div className={styles.btn} onClick={() => setListModal(false)}>
+                Cancel
+              </div>
+              <div className={classNames(styles.btn, styles.confirm)}>
+                Confirm
+              </div>
+            </Flex>
+          </div>
+        </div>
+      )}
       <h1>Minted Craft</h1>
       {data && (
         <>
@@ -70,7 +88,9 @@ export default () => {
             ))}
           </div>
           <Flex mt={50}>
-            <div className={styles.list}>List on Market</div>
+            <div className={styles.list} onClick={() => setListModal(true)}>
+              List on Market
+            </div>
           </Flex>
         </>
       )}

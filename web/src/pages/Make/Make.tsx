@@ -200,6 +200,7 @@ const Make = () => {
                   onClick={() => {
                     const element = document.createElement('img')
                     element.src = getIPFSURL(nft.media)
+                    element.id = nft.token_id
                     outputRef.current?.appendChild(element)
 
                     addComponent(nft.token_id)
@@ -217,6 +218,7 @@ const Make = () => {
                   onClick={() => {
                     const element = document.createElement('img')
                     element.src = getIPFSURL(nft.media)
+                    element.id = nft.token_id
                     outputRef.current?.appendChild(element)
 
                     addComponent(nft.token_id)
@@ -234,6 +236,7 @@ const Make = () => {
                   onClick={() => {
                     const element = document.createElement('img')
                     element.src = getIPFSURL(nft.media)
+                    element.id = nft.token_id
                     outputRef.current?.appendChild(element)
 
                     addComponent(nft.token_id)
@@ -251,6 +254,7 @@ const Make = () => {
                   onClick={() => {
                     const element = document.createElement('img')
                     element.src = getIPFSURL(nft.media)
+                    element.id = nft.token_id
                     outputRef.current?.appendChild(element)
 
                     addComponent(nft.token_id)
