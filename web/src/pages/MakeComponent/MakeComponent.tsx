@@ -5,7 +5,7 @@ const MakeComponent = () => {
   const [tokenAddress, setTokenAddress] = useState('')
   const [name, setName] = useState('')
   const [symbol, setSymbol] = useState('')
-  const [royaltyTRX, setRoyaltyTRX] = useState('')
+  const [royaltyJSON, setRoyaltyJSON] = useState('')
   const [file, setFile] = useState<File>()
   const [imageSrc, setImageSrc] = useState<string>()
 
@@ -57,10 +57,10 @@ const MakeComponent = () => {
           onChange={event => setSymbol(event.target.value)}
         />
       )}
-      <input
-        placeholder="royaltyValue (in TRX)"
-        value={royaltyTRX}
-        onChange={event => setRoyaltyTRX(event.target.value)}
+      <textarea
+        placeholder="Perpetual Royalties (JSON)"
+        value={royaltyJSON}
+        onChange={event => setRoyaltyJSON(event.target.value)}
       />
       <button onClick={publish}>Deploy</button>
     </div>
