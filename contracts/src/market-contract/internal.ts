@@ -2,11 +2,11 @@ import { assert, near, UnorderedSet } from 'near-sdk-js'
 import { Contract, DELIMETER } from '.'
 import { Sale } from './sale'
 
-export function restoreOwners(collection) {
+export function restoreOwners(collection: UnorderedSet<string>) {
   if (collection == null) {
     return null
   }
-  return UnorderedSet.deserialize(collection as UnorderedSet)
+  return UnorderedSet.reconstruct(collection)
 }
 
 //used to make sure the user attached exactly 1 yoctoNEAR
@@ -28,13 +28,13 @@ export function internallyRemoveSale(
   //get the sale object by removing the unique sale ID. If there was no sale, panic
   let sale = contract.sales.remove(contractAndTokenId) as Sale
   if (sale == null) {
-    near.panic('no sale')
+    throw 'no sale'
   }
 
   //get the set of sales for the sale's owner. If there's no sale, panic.
   let byOwnerId = restoreOwners(contract.byOwnerId.get(sale.owner_id))
   if (byOwnerId == null) {
-    near.panic('no sales by owner')
+    throw 'no sales by owner'
   }
   //remove the unique sale ID from the set of sales
   byOwnerId.remove(contractAndTokenId)
@@ -52,7 +52,7 @@ export function internallyRemoveSale(
     contract.byNftContractId.get(nftContractId),
   )
   if (byNftContractId == null) {
-    near.panic('no sales by nft contract')
+    throw 'no sales by nft contract'
   }
 
   //remove the token ID from the set

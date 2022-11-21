@@ -53,7 +53,7 @@ export function internalNftOnApprove({
     !saleConditions.hasOwnProperty('sale_conditions') ||
     Object.keys(saleConditions).length != 1
   ) {
-    near.panic('invalid sale conditions')
+    throw 'invalid sale conditions'
   }
   //create the unique sale ID which is the contract + DELIMITER + token ID
   let contractAndTokenId = `${contractId}${DELIMETER}${tokenId}`
@@ -73,7 +73,7 @@ export function internalNftOnApprove({
   //Extra functionality that populates collections necessary for the view calls
   //get the sales by owner ID for the given owner. If there are none, we create a new empty set
   let byOwnerId =
-    (contract.byOwnerId.get(ownerId) as UnorderedSet) ||
+    (contract.byOwnerId.get(ownerId) as UnorderedSet<string>) ||
     new UnorderedSet(ownerId)
   //insert the unique sale ID into the set
   byOwnerId.set(contractAndTokenId)
@@ -82,7 +82,7 @@ export function internalNftOnApprove({
 
   //get the token IDs for the given nft contract ID. If there are none, we create a new empty set
   let byNftContractId =
-    (contract.byNftContractId.get(contractId) as UnorderedSet) ||
+    (contract.byNftContractId.get(contractId) as UnorderedSet<string>) ||
     new UnorderedSet(contractId)
   //insert the token ID into the set
   byNftContractId.set(tokenId)

@@ -20,7 +20,7 @@ describe('NFT', () => {
     const contract = await root.devDeploy('./build/nft.wasm')
 
     await contract.call(contract, 'init', {
-      owner_id: root.accountId
+      owner_id: root.accountId,
     })
 
     // Test users
@@ -37,54 +37,54 @@ describe('NFT', () => {
     const { contract, alice } = context.accounts
     const token_id = randomUUID()
 
-    await alice.call(contract, 'nft_mint', {
-      token_id,
-      metadata: {
-        title: 'Component NFT',
-        description: 'This is the Component NFT'
+    await alice.call(
+      contract,
+      'nft_mint',
+      {
+        token_id,
+        metadata: {
+          title: 'Component NFT',
+          description: 'This is the Component NFT',
+        },
+        receiver_id: alice.accountId,
+        perpetual_royalties: {},
+        perpetual_dependencies: [],
       },
-      receiver_id: alice.accountId,
-      perpetual_royalties: {},
-      perpetual_dependencies: [],
-    }, {
-      attachedDeposit: '0.1'
-    })
+      {
+        attachedDeposit: '0.1',
+      },
+    )
 
     const token = await contract.view('nft_token', { token_id })
 
     console.log(token)
 
-    const payout = await contract.view('nft_payout', {
-      token_id,
-      balance: 1,
-      max_len_payout: 10
-    })
-
-    console.log(payout)
-
     context.token_ids.head = token['token_id']
   })
 
-  it('Mint Composed NFT', async t => {
+  it('Mint Composed NFT', async () => {
     const { contract, bob } = context.accounts
     const { head: head_token_id } = context.token_ids
 
     const token_id = randomUUID()
 
-    await bob.call(contract, 'nft_mint', {
-      token_id,
-      metadata: {
-        title: 'Composed NFT',
-        description: 'This is the Composed NFT'
+    await bob.call(
+      contract,
+      'nft_mint',
+      {
+        token_id,
+        metadata: {
+          title: 'Composed NFT',
+          description: 'This is the Composed NFT',
+        },
+        receiver_id: bob.accountId,
+        perpetual_royalties: {},
+        perpetual_dependencies: [[contract.accountId, head_token_id]],
       },
-      receiver_id: bob.accountId,
-      perpetual_royalties: {},
-      perpetual_dependencies: [
-        [contract.accountId, head_token_id]
-      ],
-    }, {
-      attachedDeposit: '0.1'
-    })
+      {
+        attachedDeposit: '0.1',
+      },
+    )
 
     const token = await contract.view('nft_token', { token_id })
 
@@ -93,7 +93,7 @@ describe('NFT', () => {
     const payout = await contract.view('nft_payout', {
       token_id,
       balance: 1,
-      max_len_payout: 10
+      max_len_payout: 10,
     })
 
     console.log(payout)

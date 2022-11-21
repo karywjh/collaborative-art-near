@@ -1,13 +1,14 @@
-import { assert, near, UnorderedSet, Vector } from 'near-sdk-js'
+import { assert, near, UnorderedSet } from 'near-sdk-js'
 import { Contract, NFT_METADATA_SPEC, NFT_STANDARD_NAME } from '.'
 import { Token } from './metadata'
 
 // Gets a collection and deserializes it into a set that can be used.
-export function restoreOwners(collection) {
+export function restoreOwners(collection: UnorderedSet<string> | null) {
   if (collection == null) {
     return null
   }
-  return UnorderedSet.deserialize(collection as UnorderedSet)
+
+  return UnorderedSet.reconstruct<string>(collection)
 }
 
 //convert the royalty percentage and amount to pay into a payout (U128)
@@ -125,7 +126,7 @@ export function internalRemoveTokenFromOwner(
   let tokenSet = restoreOwners(contract.tokensPerOwner.get(accountId))
   //if there is no set of tokens for the owner, we panic with the following message:
   if (tokenSet == null) {
-    near.panic('Token should be owned by the sender')
+    throw 'Token should be owned by the sender'
   }
 
   //we remove the the token_id from the set of tokens
@@ -152,14 +153,14 @@ export function internalTransfer(
   //get the token object by passing in the token_id
   let token = contract.tokensById.get(tokenId) as Token
   if (token == null) {
-    near.panic('no token found')
+    throw 'no token found'
   }
 
   //if the sender doesn't equal the owner, we check if the sender is in the approval list
   if (senderId != token.owner_id) {
     //if the token's approved account IDs doesn't contain the sender, we panic
     if (!token.approved_account_ids.hasOwnProperty(senderId)) {
-      near.panic('Unauthorized')
+      throw 'Unauthorized'
     }
 
     // If they included an approval_id, check if the sender's actual approval_id is the same as the one included
@@ -168,7 +169,7 @@ export function internalTransfer(
       let actualApprovalId = token.approved_account_ids[senderId]
       //if the sender isn't in the map, we panic
       if (actualApprovalId == null) {
-        near.panic('Sender is not approved account')
+        throw 'Sender is not approved account'
       }
 
       //make sure that the actual approval ID is the same as the one provided

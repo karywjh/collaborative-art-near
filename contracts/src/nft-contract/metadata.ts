@@ -140,7 +140,7 @@ export class JsonToken {
   metadata: TokenMetadata
   approved_account_ids: { [accountId: string]: number }
   royalty: { [accountId: string]: number }
-  dependency: { accountId: string; tokenId: number }[]
+  dependency: [string, number][]
 
   constructor({
     tokenId,
@@ -155,7 +155,7 @@ export class JsonToken {
     metadata: TokenMetadata
     approvedAccountIds: { [accountId: string]: number }
     royalty: { [accountId: string]: number }
-    dependency: { accountId: string; tokenId: number }[]
+    dependency: [string, number][]
   }) {
     //token ID
     this.token_id = tokenId

@@ -9,7 +9,7 @@ export function internalSupplySales({
   contract: Contract
 }): string {
   //returns the sales object length wrapped as a string
-  return contract.sales.len().toString()
+  return contract.sales.length.toString()
 }
 
 //returns the number of sales for a given account (result is a string)
@@ -27,7 +27,7 @@ export function internalSupplyByOwnerId({
     return '0'
   }
 
-  return byOwnerId.len().toString()
+  return byOwnerId.length.toString()
 }
 
 //returns paginated sale objects for a given account. (result is a vector of sales)
@@ -86,7 +86,7 @@ export function internalSupplyByNftContractId({
     return '0'
   }
 
-  return byNftContractId.len().toString()
+  return byNftContractId.length.toString()
 }
 
 //returns paginated sale objects associated with a given nft contract. (result is a vector of sales)

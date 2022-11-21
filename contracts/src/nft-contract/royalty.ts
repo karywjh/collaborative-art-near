@@ -1,15 +1,9 @@
-// @ts-nocheck
-import { assert, near } from 'near-sdk-js'
-import { Contract, NFT_METADATA_SPEC, NFT_STANDARD_NAME } from '.'
+import { assert, bytes, near, NearPromise } from 'near-sdk-js'
+import { Contract } from '.'
 import {
-  assertAtLeastOneYocto,
   assertOneYocto,
-  bytesForApprovedAccountId,
-  internalAddTokenToOwner,
   internalTransfer,
-  refundDeposit,
   refundApprovedAccountIds,
-  refundApprovedAccountIdsIter,
   royaltyToPayout,
 } from './internal'
 import { Token } from './metadata'
@@ -29,7 +23,7 @@ export function internalNftPayout({
   //get the token object
   let token = contract.tokensById.get(tokenId) as Token
   if (token == null) {
-    near.panic('no token')
+    throw 'no token'
   }
 
   //get the owner of the token
