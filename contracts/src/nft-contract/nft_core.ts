@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { assert, bytes, near } from 'near-sdk-js'
 import { Contract, NFT_METADATA_SPEC, NFT_STANDARD_NAME } from '.'
 import {
@@ -6,7 +5,6 @@ import {
   internalAddTokenToOwner,
   internalRemoveTokenFromOwner,
   internalTransfer,
-  refundDeposit,
   refundApprovedAccountIds,
 } from './internal'
 import { JsonToken, Token, TokenMetadata } from './metadata'
@@ -39,7 +37,9 @@ export function internalNftToken({
     metadata,
     approvedAccountIds: token.approved_account_ids,
     royalty: token.royalty,
+    dependency: token.dependency,
   })
+
   return jsonToken
 }
 

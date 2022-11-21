@@ -84,7 +84,7 @@ export function internalUpdatePrice({
   //get the sale object from the unique sale ID. If there is no token, panic.
   let sale = contract.sales.get(contractAndTokenId) as Sale
   if (sale == null) {
-    near.panic('no sale')
+    throw 'no sale'
   }
 
   assert(
@@ -116,7 +116,7 @@ export function internalOffer({
   //get the sale object from the unique sale ID. If the sale doesn't exist, panic.
   let sale = contract.sales.get(contractAndTokenId) as Sale
   if (sale == null) {
-    near.panic('no sale')
+    throw 'no sale'
   }
 
   //get the buyer ID which is the person who called the function and make sure they're not the owner of the sale

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "module": "es2020",
     "moduleResolution": "node",
     "noEmit": true
