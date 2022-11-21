@@ -39,7 +39,9 @@ export function internalNftToken({
     metadata,
     approvedAccountIds: token.approved_account_ids,
     royalty: token.royalty,
+    dependency: token.dependency
   })
+
   return jsonToken
 }
 
