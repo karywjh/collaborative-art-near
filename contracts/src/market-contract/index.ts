@@ -8,6 +8,7 @@ import {
   Vector,
   UnorderedSet,
   assert,
+  initialize,
 } from 'near-sdk-js'
 import { assertOneYocto, restoreOwners } from './internal'
 import { internalNftOnApprove } from './nft_callbacks'
@@ -43,39 +44,29 @@ export const DELIMETER = '.'
 @NearBindgen({})
 export class Contract {
   //keep track of the owner of the contract
-  ownerId: string
+  owner_id: string = ''
 
   /*
         to keep track of the sales, we map the ContractAndTokenId to a Sale. 
         the ContractAndTokenId is the unique identifier for every sale. It is made
         up of the `contract ID + DELIMITER + token ID`
     */
-  sales: UnorderedMap<Sale>
+  sales = new UnorderedMap<Sale>('sales')
 
   //keep track of all the Sale IDs for every account ID
-  byOwnerId: LookupMap<UnorderedSet<string>>
+  byOwnerId = new LookupMap<UnorderedSet<string>>('byOwnerId')
 
   //keep track of all the token IDs for sale for a given contract
-  byNftContractId: LookupMap<UnorderedSet<string>>
+  byNftContractId = new LookupMap<UnorderedSet<string>>('byNftContractId')
 
   //keep track of the storage that accounts have payed
-  storageDeposits: LookupMap<string>
+  storageDeposits = new LookupMap<string>('storageDeposits')
 
-  /*
-        initialization function (can only be called once).
-        this initializes the contract with metadata that was passed in and
-        the owner_id. 
-    */
-  constructor({ owner_id }: { owner_id: string }) {
-    this.ownerId = owner_id
-    this.sales = new UnorderedMap('sales')
-    this.byOwnerId = new LookupMap('byOwnerId')
-    this.byNftContractId = new LookupMap('byNftContractId')
-    this.storageDeposits = new LookupMap('storageDeposits')
-  }
-
-  default() {
-    return new Contract({ owner_id: '' })
+  @initialize({ privateFunction: true })
+  init({ owner_id }: { owner_id?: string }) {
+    if (owner_id) {
+      this.owner_id = owner_id
+    }
   }
 
   /*
