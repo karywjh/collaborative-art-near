@@ -1,7 +1,16 @@
-import { useRef } from 'react'
+import classNames from 'classnames'
+import * as htmlToImage from 'html-to-image'
+import { connect, keyStores } from 'near-api-js'
+import { KeyPairEd25519 } from 'near-api-js/lib/utils'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getIPFSURL } from '../../common/ipfs'
+import nftStorage from '../../common/nft-storage'
+import { dataURLtoFile } from '../../common/utils'
+import Box from '../../components/Box'
+import Flex from '../../components/Flex'
 import Navbar from '../../components/Navbar/Navbar'
+import { useNear } from '../../context/Near'
 import styles from './Make.module.scss'
 
 const CONTRACT_ID = 'artco-08vin.testnet'
@@ -67,60 +76,254 @@ const PRE_MINTED = {
 }
 
 const Make = () => {
+  const { accountId } = useNear()
+
   const navigate = useNavigate()
-  const outputRef = useRef(null)
+  const outputRef = useRef<HTMLDivElement>(null)
+  const dragItemRef = useRef<HTMLImageElement>()
+
+  const [minting, setMinting] = useState(false)
+  const [perpetualRoyalties, setPerpetualRoyalties] = useState<
+    Record<string, number>
+  >({})
+
+  const [perpetualDeps, setPerpetualDeps] = useState<[string, number][]>([])
+
+  const addComponent = async (token_id: string) => {
+    const keyStore = new keyStores.BrowserLocalStorageKeyStore()
+    const keyPair = new KeyPairEd25519(
+      '2RFm73EcZoZMLrxd6RBR6mqYopLZNEiRXpYFLji6WxcSf8VP3QqsFVnJmzmYbxLq9ePgWoDHF1Xqw5xEkQuvNMDB',
+    )
+
+    keyStore.setKey('testnet', 'fe-deploy.testnet', keyPair)
+
+    const connectionConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org',
+      walletUrl: 'https://wallet.testnet.near.org',
+      helperUrl: 'https://helper.testnet.near.org',
+      explorerUrl: 'https://explorer.testnet.near.org',
+    }
+
+    const nearConnection = await connect(connectionConfig)
+    const account = await nearConnection.account('fe-deploy.testnet')
+    const result = await account.viewFunctionV2({
+      contractId: CONTRACT_ID,
+      methodName: 'nft_token',
+      args: { token_id },
+    })
+
+    setPerpetualDeps(deps => [...deps, [CONTRACT_ID, result.token_id]])
+    setPerpetualRoyalties(royalty => {
+      for (const [id, val] of Object.entries<number>(result.royalty)) {
+        if (id in royalty) {
+          royalty[id] += val
+        } else {
+          royalty[id] = val
+        }
+      }
+
+      return royalty
+    })
+  }
+
+  const mint = async () => {
+    if (!accountId) return
+
+    setMinting(true)
+
+    const keyStore = new keyStores.BrowserLocalStorageKeyStore()
+    const keyPair = new KeyPairEd25519(
+      '2RFm73EcZoZMLrxd6RBR6mqYopLZNEiRXpYFLji6WxcSf8VP3QqsFVnJmzmYbxLq9ePgWoDHF1Xqw5xEkQuvNMDB',
+    )
+
+    keyStore.setKey('testnet', 'fe-deploy.testnet', keyPair)
+
+    const connectionConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org',
+      walletUrl: 'https://wallet.testnet.near.org',
+      helperUrl: 'https://helper.testnet.near.org',
+      explorerUrl: 'https://explorer.testnet.near.org',
+    }
+
+    const nearConnection = await connect(connectionConfig)
+    const account = await nearConnection.account('fe-deploy.testnet')
+
+    const dataURL = await htmlToImage.toPng(outputRef.current!)
+    const file = dataURLtoFile(dataURL, `crafted.png`)
+
+    const cid = await nftStorage.storeBlob(file)
+
+    console.log('IPFS', cid)
+
+    const token_id = crypto.randomUUID()
+    const result = await account.functionCall({
+      contractId: CONTRACT_ID,
+      methodName: 'nft_mint',
+      args: {
+        token_id,
+        metadata: {
+          title: 'Artco Composed NFT',
+          description: 'Artco Composed NFT',
+          media: `ipfs://${cid}`,
+        },
+        receiver_id: accountId,
+        perpetual_royalties: perpetualRoyalties,
+        perpetual_dependencies: perpetualDeps,
+      },
+      gas: '300000000000000',
+      attachedDeposit: '1000000000000000000000000',
+    })
+
+    console.log(result)
+
+    navigate(`/view/${CONTRACT_ID}/${token_id}`)
+  }
 
   return (
     <div className={styles.page}>
       <Navbar />
-      <div className={styles.build}>
-        <h1>Make Your Own NFT</h1>
-        <div className={styles.craft}>
-          <h3>Head</h3>
-          <div className={styles.row}>
-            {PRE_MINTED.HEAD.map(nft => (
-              <img
-                key={nft.token_id}
-                className={styles.component}
-                src={getIPFSURL(nft.media)}
-              />
-            ))}
+      <Flex>
+        <Box grow={1} basis={1} className={styles.build}>
+          <h1>Make Your Own NFT</h1>
+          <div className={styles.craft}>
+            <h3>Head</h3>
+            <Flex spacing={15}>
+              {PRE_MINTED.HEAD.map(nft => (
+                <img
+                  key={nft.token_id}
+                  className={styles.component}
+                  src={getIPFSURL(nft.media)}
+                  onClick={() => {
+                    const element = document.createElement('img')
+                    element.src = getIPFSURL(nft.media)
+                    outputRef.current?.appendChild(element)
+
+                    addComponent(nft.token_id)
+                  }}
+                />
+              ))}
+            </Flex>
+            <h3>Body</h3>
+            <Flex spacing={15}>
+              {PRE_MINTED.BODY.map(nft => (
+                <img
+                  key={nft.token_id}
+                  className={styles.component}
+                  src={getIPFSURL(nft.media)}
+                  onClick={() => {
+                    const element = document.createElement('img')
+                    element.src = getIPFSURL(nft.media)
+                    outputRef.current?.appendChild(element)
+
+                    addComponent(nft.token_id)
+                  }}
+                />
+              ))}
+            </Flex>
+            <h3>Pants</h3>
+            <Flex spacing={15}>
+              {PRE_MINTED.PANTS.map(nft => (
+                <img
+                  key={nft.token_id}
+                  className={styles.component}
+                  src={getIPFSURL(nft.media)}
+                  onClick={() => {
+                    const element = document.createElement('img')
+                    element.src = getIPFSURL(nft.media)
+                    outputRef.current?.appendChild(element)
+
+                    addComponent(nft.token_id)
+                  }}
+                />
+              ))}
+            </Flex>
+            <h3>Shoes</h3>
+            <Flex spacing={15}>
+              {PRE_MINTED.SHOES.map(nft => (
+                <img
+                  key={nft.token_id}
+                  className={styles.component}
+                  src={getIPFSURL(nft.media)}
+                  onClick={() => {
+                    const element = document.createElement('img')
+                    element.src = getIPFSURL(nft.media)
+                    outputRef.current?.appendChild(element)
+
+                    addComponent(nft.token_id)
+                  }}
+                />
+              ))}
+            </Flex>
           </div>
-          <h3>Body</h3>
-          <div className={styles.row}>
-            {PRE_MINTED.BODY.map(nft => (
-              <img
-                key={nft.token_id}
-                className={styles.component}
-                src={getIPFSURL(nft.media)}
-              />
+        </Box>
+        <Box grow={1} basis={1} className={styles.show}>
+          <Box className={styles.border}>
+            {useMemo(
+              () => (
+                <Box
+                  ref={outputRef}
+                  className={styles.output}
+                  onMouseDown={event => {
+                    event.preventDefault()
+                    event.stopPropagation()
+
+                    if (event.target instanceof HTMLImageElement) {
+                      dragItemRef.current = event.target
+
+                      const currentZIndex = Number(
+                        dragItemRef.current.style.zIndex,
+                      )
+                      dragItemRef.current.style.zIndex = `${currentZIndex + 1}`
+                    }
+                  }}
+                  onMouseMove={event => {
+                    const dragItem = dragItemRef.current
+
+                    if (dragItem) {
+                      const currentX = Number(
+                        dragItem.style.left.replace('px', ''),
+                      )
+                      const currentY = Number(
+                        dragItem.style.top.replace('px', ''),
+                      )
+
+                      dragItem.style.left = `${currentX + event.movementX}px`
+                      dragItem.style.top = `${currentY + event.movementY}px`
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    dragItemRef.current = undefined
+                  }}
+                  onMouseUp={() => {
+                    dragItemRef.current = undefined
+                  }}
+                />
+              ),
+              [],
+            )}
+          </Box>
+          <Box mt={20}>
+            {perpetualDeps.map(dep => (
+              <div key={dep[1]}>
+                {dep[0]}: {dep[1]}
+              </div>
             ))}
-          </div>
-          <h3>Pants</h3>
-          <div className={styles.row}>
-            {PRE_MINTED.PANTS.map(nft => (
-              <img
-                key={nft.token_id}
-                className={styles.component}
-                src={getIPFSURL(nft.media)}
-              />
-            ))}
-          </div>
-          <h3>Shoes</h3>
-          <div className={styles.row}>
-            {PRE_MINTED.SHOES.map(nft => (
-              <img
-                key={nft.token_id}
-                className={styles.component}
-                src={getIPFSURL(nft.media)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className={styles.show}>
-        <div ref={outputRef} className={styles.output}></div>
-      </div>
+          </Box>
+          <Box mt={20}>{JSON.stringify(perpetualRoyalties, null, 2)}</Box>
+          <Flex mt={20}>
+            <div
+              className={classNames(styles.mint, minting && styles.minting)}
+              onClick={mint}
+            >
+              {minting ? 'Minting ...' : 'Mint now'}
+            </div>
+          </Flex>
+        </Box>
+      </Flex>
     </div>
   )
 }
