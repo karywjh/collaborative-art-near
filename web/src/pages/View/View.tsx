@@ -3,6 +3,7 @@ import { KeyPairEd25519 } from 'near-api-js/lib/utils'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getIPFSURL } from '../../common/ipfs'
+import Flex from '../../components/Flex'
 import styles from './View.module.scss'
 
 export default () => {
@@ -62,8 +63,15 @@ export default () => {
           </div>
           <div>
             <h3>Royalties</h3>
-            {JSON.stringify(data.royalty, null, 2)}
+            {Object.entries<number>(data.royalty).map(([id, val]) => (
+              <div key={id}>
+                {id}: {val / 100}%
+              </div>
+            ))}
           </div>
+          <Flex mt={50}>
+            <div className={styles.list}>List on Market</div>
+          </Flex>
         </>
       )}
     </div>

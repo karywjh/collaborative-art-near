@@ -9,4 +9,26 @@
   a {
     color: #1854d5;
   }
+
+  .list {
+    padding: 0 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    background-color: #1854d5;
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 15px;
+
+    cursor: pointer;
+    transition: transform 200ms;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+
+    &:active {
+      transform: scale(1);
+    }
+  }
 }
