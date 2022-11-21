@@ -1,9 +1,10 @@
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Launch from './pages/Launch'
+import { RouterProvider } from 'react-router-dom'
+import { NearProvider } from './context/Near'
+import router from './router'
 
 ReactDOM.createRoot(document.getElementById('app') as HTMLElement).render(
-  <RouterProvider
-    router={createBrowserRouter([{ path: '/', element: <Launch /> }])}
-  />,
+  <NearProvider>
+    <RouterProvider router={router} />
+  </NearProvider>,
 )
