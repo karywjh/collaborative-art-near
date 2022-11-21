@@ -22,6 +22,7 @@ import { AccountView } from 'near-api-js/lib/providers/provider'
 
 export interface LoginContext {
   modal?: WalletSelectorModal
+  selector?: WalletSelector
   accountId?: string
   account?: AccountView
   signIn: () => void
@@ -151,6 +152,7 @@ export const NearProvider = ({ children }: PropsWithChildren) => {
     <context.Provider
       value={{
         modal,
+        selector,
         accountId,
         account,
         signIn,
