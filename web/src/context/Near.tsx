@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, useCallback } from 'react'
 import { useContext, useEffect, useState } from 'react'
 import {
   setupWalletSelector,
@@ -6,6 +6,7 @@ import {
   AccountState,
 } from '@near-wallet-selector/core'
 import { map, distinctUntilChanged } from 'rxjs'
+import { providers } from 'near-api-js'
 import { setupNearWallet } from '@near-wallet-selector/near-wallet'
 import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { setupSender } from '@near-wallet-selector/sender'
@@ -17,10 +18,12 @@ import { setupNearFi } from '@near-wallet-selector/nearfi'
 import { setupWalletConnect } from '@near-wallet-selector/wallet-connect'
 import { setupCoin98Wallet } from '@near-wallet-selector/coin98-wallet'
 import { setupModal, WalletSelectorModal } from '@near-wallet-selector/modal-ui'
+import { AccountView } from 'near-api-js/lib/providers/provider'
 
 export interface LoginContext {
   modal?: WalletSelectorModal
   accountId?: string
+  account?: AccountView
   signIn: () => void
   signOut: () => Promise<void>
 }
@@ -31,8 +34,7 @@ export const useNear = () => useContext(context)
 export const NearProvider = ({ children }: PropsWithChildren) => {
   const [selector, setSelector] = useState<WalletSelector>()
   const [modal, setModal] = useState<WalletSelectorModal>()
-  const [wallet, setWallet] = useState()
-  const [account, setAccount] = useState<AccountState>()
+  const [account, setAccount] = useState<AccountView>()
   const [accounts, setAccounts] = useState<Array<AccountState>>()
 
   useEffect(() => {
@@ -100,6 +102,36 @@ export const NearProvider = ({ children }: PropsWithChildren) => {
   const accountId = accounts?.find(account => account.active)?.accountId
   console.log('accountId', accountId)
 
+  const getAccount = useCallback(async (): Promise<AccountView | undefined> => {
+    if (!accountId || !selector) {
+      return undefined
+    }
+
+    const { network } = selector.options
+    const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
+
+    return provider
+      .query<AccountView>({
+        request_type: 'view_account',
+        finality: 'final',
+        account_id: accountId,
+      })
+      .then(data => ({
+        ...data,
+        account_id: accountId,
+      }))
+  }, [accountId, selector])
+
+  useEffect(() => {
+    if (!accountId) {
+      return setAccount(undefined)
+    }
+
+    getAccount().then(nextAccount => {
+      setAccount(nextAccount)
+    })
+  }, [accountId, getAccount])
+
   const signIn = () => {
     modal && modal.show()
   }
@@ -120,6 +152,7 @@ export const NearProvider = ({ children }: PropsWithChildren) => {
       value={{
         modal,
         accountId,
+        account,
         signIn,
         signOut,
       }}
